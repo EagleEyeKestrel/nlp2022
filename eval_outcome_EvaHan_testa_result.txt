@@ -1,0 +1,4 @@
+The result of EvaHan_testa_result.txt is：
+|       Task      |    P    |    R    |    F1   |
+|Word segmentation| 93.0995 | 94.6251 | 93.8561 |
+|   Pos tagging   | 87.3286 | 88.7597 | 88.0384 |
