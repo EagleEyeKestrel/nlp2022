@@ -1,22 +1,22 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+from pytorch_pretrained_bert import BertModel
 
 
 class POSTagger(nn.Module):
-    def __init__(self, input_dim, embedding_dim, hidden_dim, output_dim, n_layers, bidirectional, dropout, pad_idx):
+    def __init__(self, bert_path, output_dim):
         super().__init__()
-        self.embedding_layer = nn.Embedding(input_dim, embedding_dim, padding_idx=pad_idx)
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim, num_layers=n_layers, bidirectional=bidirectional)
-        self.fc = nn.Linear(hidden_dim * 2 if bidirectional else hidden_dim, output_dim)
-        self.dropout = nn.Dropout(dropout)
+        self.bert_path = bert_path
+        self.bert = BertModel.from_pretrained(bert_path)
+        for param in self.bert.parameters():
+            param.requires_grad = True
+        self.fc = nn.Linear(768, output_dim)
 
-    def forward(self, words):
-        #[len, batch size]
-        embedded = self.dropout(self.embedding_layer(words))
-        #[len, batch size, embedding dim]
-        output, (h, c) = self.lstm(embedded)
-        #[len, batch size, hid * 2]
-        res = self.fc(output)
-        #[len, batch size, output dim]
+    def forward(self, item):
+        words, mask = item[0], item[1]
+        #print(words.shape, mask.shape)
+        feats, pooled = self.bert(words, attention_mask=mask, output_all_encoded_layers=False)
+        #print(feats.shape, pooled.shape)
+        res = self.fc(feats)
+        #print(res.shape)
         return res

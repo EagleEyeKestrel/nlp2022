@@ -1,5 +1,7 @@
 data/
 .vector_cache/
+bert/
+*.pt
 *.word
 *.word.bz2
 *.word.pt
